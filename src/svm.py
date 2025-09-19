@@ -63,6 +63,7 @@ class LpLinftySVM:
           self.svc_model.fit(self.X, self.y)
 
         return self
+
     def predict(self):
         if self.kernel == Kernels.linear_kernel:
             X_test = self.X_test
@@ -78,3 +79,4 @@ class LpLinftySVM:
           # Non-linear kernel: use the trained SVC
           preds = self.svc_model.predict(self.X_test)
         return preds
+
