@@ -1,7 +1,7 @@
 # -----------------------------
 # 1️⃣ Imports
 import sys
-sys.path.append("..", "data", "heart.csv")  # Path to folder containing 'src'
+sys.path.append("..")  # Path to folder containing 'src'
 # -----------------------------
 import pandas as pd
 import numpy as np
