@@ -1,6 +1,5 @@
 import numpy as np
-from src.Kernels import linear_kernel, polynomial_kernel, rbf_kernel, sigmoid_kernel
-
+import src.Kernels
 def compute_L_H(C, alpha1, alpha2, beta1, beta2, y1, y2):
     """
     Compute lower (L) and upper (H) bounds for alpha2.
@@ -67,7 +66,7 @@ def compute_w(delta_power2, r, y, X):
     return w
 
 
-def decision_function(x_new, X, w=None, b=0, r=None, y=None, kernel=linear_kernel, delta=None):
+def decision_function(x_new, X, w=None, b=0, r=None, y=None, kernel="linear", delta=None):
     """
     Compute the decision function f(x) for a given sample.
     
@@ -76,21 +75,9 @@ def decision_function(x_new, X, w=None, b=0, r=None, y=None, kernel=linear_kerne
         X (np.ndarray): Training data
         w (np.ndarray): Weight vector (for linear kernel)
         b (float): Bias term
-        r (np.ndarray): Combined alphas and betas for support vectors
-        y (np.ndarray): Training labels
         kernel (function): Kernel function
         delta (np.ndarray): Delta values for normalization
     """
-    if kernel is linear_kernel:
-        delta_inv = compute_delta_inverse(delta)
-        x_tilde = x_new * delta_inv
-        return np.dot(w, x_tilde) + b
-
-    # Non-linear kernel: use support vectors
-    sv_idx = np.where(r > 1e-6)[0]
-    if len(sv_idx) == 0:
-        return b
-
     delta_inv = compute_delta_inverse(delta)
-    K_vec = np.array([kernel(X[i], x_new, delta_inv) for i in sv_idx])
-    return np.dot(r[sv_idx] * y[sv_idx], K_vec) + b
+    x_tilde = x_new * delta_inv
+    return np.dot(w, x_tilde) + b
