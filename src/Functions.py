@@ -43,27 +43,30 @@ def compute_delta_squared(delta_power2, w, alpha1, alpha2, a1, a2, y1, y2, b_old
     return delta_power2
 
 
-def compute_delta_inverse(delta_squared):
+
+import numpy as np
+
+def compute_delta_inverse(delta_squared, epsilon=1e-6):
     """
-    Compute the inverse of delta, avoiding division by zero.
+    Compute the inverse of delta (1/sqrt(delta_squared)),
+    avoiding division by zero in a vectorized way.
     """
-    epsilon = 1e-4
     if delta_squared is None:
-        delta_squared = np.ones(1) * 1e-6
-    delta_squared[delta_squared == 0] = epsilon
-    delta = np.sqrt(delta_squared)
-    delta[delta == 0] = epsilon
-    return 1 / delta
+        return np.array([1/np.sqrt(epsilon)])
+    
+    safe_delta_sq = np.maximum(delta_squared, epsilon)
+    return 1.0 / np.sqrt(safe_delta_sq)
 
 
-def compute_w(delta_power2, r, y, X):
+
+def compute_w(delta_power2, r, y, X, eps=1e-6):
     """
     Compute weight vector w.
     """
-    eps = 1e-4
-    delta_inv = 1.0 / (delta_power2 + eps)
-    w = (r * y) @ (delta_inv * X)
+    delta_inv2 = 1.0 / (delta_power2 + eps)   # ≈ δ⁻²
+    w = (r * y) @ (delta_inv2 * X)
     return w
+
 
 
 def decision_function(x_new, X, w=None, b=0, r=None, y=None, kernel="linear", delta=None):
@@ -76,7 +79,7 @@ def decision_function(x_new, X, w=None, b=0, r=None, y=None, kernel="linear", de
         w (np.ndarray): Weight vector (for linear kernel)
         b (float): Bias term
         kernel (function): Kernel function
-        delta (np.ndarray): Delta values for normalization
+        
     """
     delta_inv = compute_delta_inverse(delta)
     x_tilde = x_new * delta_inv
