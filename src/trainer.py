@@ -30,16 +30,16 @@ class LpLinftyTrainer:
         delta_sq       = model.delta_power2
         E1, E2         = model.errors[i1], model.errors[i2]
         s              = y1 * y2
-
+        
         # Compute bounds
         L, H = Functions.compute_L_H(model.C, alpha1, alpha2, beta1, beta2, y1, y2)
         if L == H:
             return 0
 
         delta_inv = Functions.compute_delta_inverse(delta_sq)
-        k11 = model.kernel(x1, x1, delta_inv)
-        k12 = model.kernel(x1, x2, delta_inv)
-        k22 = model.kernel(x2, x2, delta_inv)
+        k11 = model.kernel(x1, x1,delta_sq)
+        k12 = model.kernel(x1, x2,delta_sq)
+        k22 = model.kernel(x2, x2,delta_sq)
 
         eta = k11 + k22 - 2 * k12
         if eta > 0:
@@ -68,13 +68,11 @@ class LpLinftyTrainer:
                                          b_old, E2, k22)
         b_new = Functions.compute_b(a1, a2, b1, b2, model.C)
 
-        # Update delta squared and weight for linear kernel
-        if model.kernel is Kernels.linear_kernel:
-            delta_sq = Functions.compute_delta_squared(
+        delta_sq = Functions.compute_delta_squared(
                 delta_sq, w, alpha1, alpha2, a1, a2,
                 y1, y2, b_old, b_new, x1, x2, model.p
             )
-            model.w = Functions.compute_w(delta_sq, model.alphas, model.y, model.X)
+        model.w = Functions.compute_w(delta_sq, model.alphas, model.y, model.X)
 
         # Update model variables
         model.alphas[i1], model.alphas[i2] = a1, a2
