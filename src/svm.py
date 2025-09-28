@@ -69,19 +69,13 @@ class LpLinftySVM:
         return self
 
     def predict(self):
-        if self.kernel_name  == "linear":
-            X_test = self.X_test
-            preds = np.empty(X_test.shape[0])
-            for i, x in enumerate(X_test):
-                f_x = Functions.decision_function(x, self.X, self.w,
-                                              self.b, self.alphas,
-                                              self.y, self.kernel,
-                                              self.delta_power2)
-                preds[i] = 1 if f_x > 0 else -1
-
-        else:
-          # Non-linear kernel: use the trained SVC
-          preds = self.svc_model.predict(self.X_test)
-        return preds
+       if self.kernel_name == "linear":
+            f_x = Functions.decision_function(
+            self.X_test, self.w, self.b, self.delta_power2 )
+            preds = geek.sign(f_x)
+       else:
+            # Non-linear kernel: use the trained SVC
+            preds = self.svc_model.predict(self.X_test)
+       return preds
 
 
